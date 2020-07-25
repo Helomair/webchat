@@ -24,4 +24,15 @@ class UserService {
 
         return $this->user_repo->createNewUser($data);
     }
+
+    public function userLoginCheck($email, $password) {
+        $user = $this->user_repo->getUser(null, $email);
+        
+        if ($user && Hash::check($password, $user->password)) {
+            return $user;
+        }
+        else {
+            return false;
+        }
+    }
 }

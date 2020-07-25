@@ -17,9 +17,8 @@ class AuthController extends Controller
     }
 
     public function register(Request $request) {
-        $input = $request->all();
         Validator::make(
-            $input, 
+            $request->all(), 
             [
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -27,6 +26,33 @@ class AuthController extends Controller
             ],
         )->validate();
 
-        return $this->user_service->createUser($input['name'], $input['email'], $input['password']);
+        $name = $request->input('name');
+        $email = $request->input('email');
+        $password = $request->input('password');
+
+        return $this->user_service->createUser($name, $email, $password);
+    }
+
+    public function login(Request $request) {
+        $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $email = $request->input('email');
+        $password = $request->input('password');
+
+        $user = $this->user_service->userLoginCheck($email, $password);
+
+        $result = [
+            'user' => $user,
+            'sucess' => true,
+        ];
+
+        if ($user === false) {
+            $result['sucess'] = false;
+        }
+
+        return response()->json($result);
     }
 }
